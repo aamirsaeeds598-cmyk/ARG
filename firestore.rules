@@ -1,0 +1,122 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function userRole() {
+      return userDoc().data.role;
+    }
+
+    function userTeamId() {
+      return userDoc().data.currentTeamId;
+    }
+
+    function userEmail() {
+      return userDoc().data.email;
+    }
+
+    function isAdminForTeam(teamId) {
+      return isSignedIn() &&
+        userRole() == "admin" &&
+        userTeamId() == teamId;
+    }
+
+    function isWorkerForTeam(teamId) {
+      return isSignedIn() &&
+        userRole() == "worker" &&
+        userTeamId() == teamId;
+    }
+
+    function isAssignedWorker(teamId) {
+      return isWorkerForTeam(teamId) &&
+        resource.data.assignedWorkerId == request.auth.uid;
+    }
+
+    match /users/{uid} {
+      // Users can access their own profile. Admins can read users.
+      allow read: if isSignedIn() &&
+        (request.auth.uid == uid || userRole() == "admin");
+      allow create: if isSignedIn() && request.auth.uid == uid;
+      allow update: if isSignedIn() &&
+        (request.auth.uid == uid || userRole() == "admin");
+      allow delete: if false;
+    }
+
+    match /teams/{teamId} {
+      allow read: if isSignedIn() && userTeamId() == teamId;
+      allow create, update, delete: if isAdminForTeam(teamId);
+
+      match /invites/{inviteId} {
+        allow create: if isAdminForTeam(teamId);
+        allow read: if isAdminForTeam(teamId) ||
+          (isSignedIn() && userRole() == "worker" && resource.data.email == userEmail());
+
+        // Worker can accept their own pending invite.
+        allow update: if isAdminForTeam(teamId) || (
+          isSignedIn() &&
+          userRole() == "worker" &&
+          resource.data.status == "pending" &&
+          resource.data.email == userEmail() &&
+          request.resource.data.status == "accepted" &&
+          request.resource.data.acceptedByUid == request.auth.uid
+        );
+
+        allow delete: if isAdminForTeam(teamId);
+      }
+
+      match /members/{memberUid} {
+        allow read: if isSignedIn() && userTeamId() == teamId;
+        allow create, update, delete: if isAdminForTeam(teamId) ||
+          (
+            isSignedIn() &&
+            request.auth.uid == memberUid &&
+            userRole() == "worker" &&
+            request.resource.data.email == userEmail()
+          );
+      }
+
+      match /clients/{clientId} {
+        allow read: if isSignedIn() && userTeamId() == teamId;
+        allow create, update, delete: if isAdminForTeam(teamId);
+      }
+
+      match /quotes/{quoteId} {
+        allow read: if isAdminForTeam(teamId);
+        allow create, update, delete: if isAdminForTeam(teamId);
+      }
+
+      match /requests/{requestId} {
+        allow read: if isAdminForTeam(teamId);
+        allow create, update, delete: if isAdminForTeam(teamId);
+      }
+
+      match /jobs/{jobId} {
+        allow create, delete: if isAdminForTeam(teamId);
+
+        allow read: if isAdminForTeam(teamId) ||
+          (isWorkerForTeam(teamId) && resource.data.assignedWorkerId == request.auth.uid);
+
+        // Admin has full update access.
+        allow update: if isAdminForTeam(teamId);
+
+        // Worker has limited update access on own assigned jobs only.
+        allow update: if isAssignedWorker(teamId) &&
+          request.resource.data.assignedWorkerId == resource.data.assignedWorkerId &&
+          request.resource.data.diff(resource.data).changedKeys().hasOnly([
+            "status",
+            "workerNotes",
+            "startedAt",
+            "completedAt",
+            "notesUpdatedAt",
+            "updatedAt"
+          ]);
+      }
+    }
+  }
+}
