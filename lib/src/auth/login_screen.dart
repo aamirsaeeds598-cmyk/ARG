@@ -370,14 +370,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             onTap: _isLoading ? () {} : _signInWithGoogle,
                           ),
                         ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: _SocialButton(
-                            label: 'Apple',
-                            icon: const Icon(Icons.apple, size: 20, color: Colors.black),
-                            onTap: () {/* Apple sign-in placeholder */},
-                          ),
-                        ),
+                        // SizedBox(width: 12.w),
+                        // Expanded(
+                        //   child: _SocialButton(
+                        //     label: 'Apple',
+                        //     icon: const Icon(Icons.apple, size: 20, color: Colors.black),
+                        //     onTap: () {/* Apple sign-in placeholder */},
+                        //   ),
+                        // ),
                       ],
                     ),
                     SizedBox(height: 24.h),

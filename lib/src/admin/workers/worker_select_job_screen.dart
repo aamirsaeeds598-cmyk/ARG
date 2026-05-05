@@ -416,7 +416,7 @@ class _EmptyState extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.5)),
       ),

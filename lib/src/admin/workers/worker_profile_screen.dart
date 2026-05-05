@@ -28,10 +28,12 @@ class WorkerProfileScreen extends StatelessWidget {
     final workerRef =
     FirebaseFirestore.instance.doc(FirestorePaths.user(workerUid));
 
+    // Query by email — this is the field consistently set across all
+    // assignment paths (create_job, job_details, worker_select_job).
+    // We sort in-memory to avoid needing a composite Firestore index.
     final jobsQuery = FirebaseFirestore.instance
         .collection(FirestorePaths.teamJobs(teamId))
-        .where('assignedWorkerId', isEqualTo: workerUid)
-        .orderBy('updatedAt', descending: true);
+        .where('assignedWorkerEmail', isEqualTo: workerEmail);
 
     return Scaffold(
       backgroundColor: colorScheme.surfaceContainerLowest,
@@ -192,26 +194,26 @@ class WorkerProfileScreen extends StatelessWidget {
                 const SizedBox(height: 14),
 
                 // ── Worker info card ───────────────────────────────────
-                _SectionCard(
-                  icon: Icons.badge_outlined,
-                  iconColor: const Color(0xFF7C4DFF),
-                  title: 'Worker Details',
-                  child: Column(
-                    children: [
-                      _InfoRow(
-                        icon: Icons.tag_rounded,
-                        label: 'Worker ID',
-                        value: workerUid,
-                        copyable: true,
-                      ),
-                      _InfoRow(
-                        icon: Icons.groups_2_outlined,
-                        label: 'Current team',
-                        value: currentTeam,
-                      ),
-                    ],
-                  ),
-                ),
+                // _SectionCard(
+                //   icon: Icons.badge_outlined,
+                //   iconColor: const Color(0xFF7C4DFF),
+                //   title: 'Worker Details',
+                //   child: Column(
+                //     children: [
+                //       _InfoRow(
+                //         icon: Icons.tag_rounded,
+                //         label: 'WorkerID',
+                //         value: workerUid,
+                //         copyable: true,
+                //       ),
+                //       _InfoRow(
+                //         icon: Icons.groups_2_outlined,
+                //         label: 'Current team',
+                //         value: currentTeam,
+                //       ),
+                //     ],
+                //   ),
+                // ),
                 const SizedBox(height: 14),
 
                 // ── Assign job button ──────────────────────────────────
@@ -247,6 +249,7 @@ class WorkerProfileScreen extends StatelessWidget {
 
                 // ── Assigned jobs ──────────────────────────────────────
                 _SectionCard(
+
                   icon: Icons.work_outline_rounded,
                   iconColor: const Color(0xFF5B7FFF),
                   title: 'Assigned Jobs',
@@ -271,8 +274,20 @@ class WorkerProfileScreen extends StatelessWidget {
                         );
                       }
 
-                      final docs =
+                      final rawDocs =
                           snapshot.data?.docs ?? const [];
+                      // Sort in-memory by updatedAt descending
+                      final docs = [...rawDocs]..sort((a, b) {
+                          final aTs = a.data()['updatedAt'];
+                          final bTs = b.data()['updatedAt'];
+                          final aMs = aTs is Timestamp
+                              ? aTs.millisecondsSinceEpoch
+                              : 0;
+                          final bMs = bTs is Timestamp
+                              ? bTs.millisecondsSinceEpoch
+                              : 0;
+                          return bMs.compareTo(aMs);
+                        });
 
                       if (docs.isEmpty) {
                         return Padding(

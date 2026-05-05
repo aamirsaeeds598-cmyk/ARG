@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -51,21 +42,52 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyD8S6VKpQ3zpnkgnja2Eus0Rut_vThtrX4',
-    appId: '1:899046507034:ios:6b04f3b09bd7b155bd87a3',
+    appId: '1:899046507034:ios:c143a382087e83e1bd87a3',
     messagingSenderId: '899046507034',
     projectId: 'arg-restoration',
     storageBucket: 'arg-restoration.firebasestorage.app',
     androidClientId: '899046507034-3tdlp1qp2mjlg14q9sqnmd40lbun12r2.apps.googleusercontent.com',
-    iosClientId: '899046507034-8rpiq4vm4upce33oghplvofd476bo6m8.apps.googleusercontent.com',
-    iosBundleId: 'com.example.jobber',
+    iosClientId: '899046507034-87o1a2mk2qsmrguuba7sbtueb7b2qckd.apps.googleusercontent.com',
+    iosBundleId: 'com.arg.restoration.construction',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyB1ltksKExNAVMmZ2oWW1pR0KF19L0Y0U8',
-    appId: '1:899046507034:android:7782763b2488c6fdbd87a3',
+    appId: '1:899046507034:android:20a65207eb1b5940bd87a3',
     messagingSenderId: '899046507034',
     projectId: 'arg-restoration',
     storageBucket: 'arg-restoration.firebasestorage.app',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBrOsAa1YC_oUEwftyPlYhR5xqZJiArX1Y',
+    appId: '1:899046507034:web:7d19a9ec40970ca9bd87a3',
+    messagingSenderId: '899046507034',
+    projectId: 'arg-restoration',
+    authDomain: 'arg-restoration.firebaseapp.com',
+    storageBucket: 'arg-restoration.firebasestorage.app',
+    measurementId: 'G-KZTKS2GZJB',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyD8S6VKpQ3zpnkgnja2Eus0Rut_vThtrX4',
+    appId: '1:899046507034:ios:c143a382087e83e1bd87a3',
+    messagingSenderId: '899046507034',
+    projectId: 'arg-restoration',
+    storageBucket: 'arg-restoration.firebasestorage.app',
+    androidClientId: '899046507034-3tdlp1qp2mjlg14q9sqnmd40lbun12r2.apps.googleusercontent.com',
+    iosClientId: '899046507034-87o1a2mk2qsmrguuba7sbtueb7b2qckd.apps.googleusercontent.com',
+    iosBundleId: 'com.arg.restoration.construction',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBrOsAa1YC_oUEwftyPlYhR5xqZJiArX1Y',
+    appId: '1:899046507034:web:4dd3599b676c7dd4bd87a3',
+    messagingSenderId: '899046507034',
+    projectId: 'arg-restoration',
+    authDomain: 'arg-restoration.firebaseapp.com',
+    storageBucket: 'arg-restoration.firebasestorage.app',
+    measurementId: 'G-1JX69SX4Z1',
   );
 
 }
